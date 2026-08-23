@@ -1,66 +1,135 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: frontend-demo
+  name: rollout-bluegreen
   namespace: frontend-demo
 spec:
-  replicas: 4
-  revisionHistoryLimit: 3
-  strategy:
-    canary:
-      canaryService: frontend-demo-canary
-      stableService: frontend-demo-stable
-      trafficRouting:
-        alb:
-          ingress: frontend-demo-ingress
-          servicePort: 80
-      steps:
-        - setWeight: 10
-        - pause: {duration: 20}
-        - analysis:
-            templates:
-              - templateName: frontend-canary-analysis
-        - setWeight: 25
-        - pause: {duration: 20}
-        - setWeight: 50
-        - pause: {duration: 20}
-        - setWeight: 75
-        - pause: {duration: 30}
-        - setWeight: 100
+  replicas: 2
+  revisionHistoryLimit: 2
   selector:
     matchLabels:
-      app: frontend-demo
+      app: rollout-bluegreen
   template:
     metadata:
       labels:
-        app: frontend-demo
+        app: rollout-bluegreen
     spec:
       containers:
-        - name: frontend-demo
-          image: 345259854056.dkr.ecr.us-east-1.amazonaws.com/app-v2:latest
-          ports:
-            - containerPort: 3000
-          # env:
-          #   - name: APP_VERSION
-          #     value: "v1"
-          #   - name: APP_COLOR
-          #     value: "#2563eb"
-          readinessProbe:
-            httpGet:
-              path: /readyz
-              port: 3000
-            initialDelaySeconds: 3
-            periodSeconds: 5
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 3000
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          resources:
-            requests:
-              cpu: 50m
-              memory: 64Mi
-            limits:
-              cpu: 200m
-              memory: 128Mi
+      - name: rollouts-demo
+        image: 345259854056.dkr.ecr.us-east-1.amazonaws.com/app-v1:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+  strategy:
+    blueGreen: 
+      # activeService specifies the service to update with the new template hash at time of promotion.
+      # This field is mandatory for the blueGreen update strategy.
+      activeService: rollout-bluegreen-active
+      # previewService specifies the service to update with the new template hash before promotion.
+      # This allows the preview stack to be reachable without serving production traffic.
+      # This field is optional.
+      previewService: rollout-bluegreen-preview
+      # autoPromotionEnabled disables automated promotion of the new stack by pausing the rollout
+      # immediately before the promotion. If omitted, the default behavior is to promote the new
+      # stack as soon as the ReplicaSet are completely ready/available.
+      # Rollouts can be resumed using: `kubectl argo rollouts promote ROLLOUT`
+      autoPromotionEnabled: false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# apiVersion: argoproj.io/v1alpha1
+# kind: Rollout
+# metadata:
+#   name: frontend-demo
+#   namespace: frontend-demo
+# spec:
+#   replicas: 4
+#   revisionHistoryLimit: 3
+#   strategy:
+#     canary:
+#       canaryService: frontend-demo-canary
+#       stableService: frontend-demo-stable
+#       trafficRouting:
+#         alb:
+#           ingress: frontend-demo-ingress
+#           servicePort: 80
+#       steps:
+#         - setWeight: 10
+#         - pause: {duration: 20}
+#         - analysis:
+#             templates:
+#               - templateName: frontend-canary-analysis
+#         - setWeight: 25
+#         - pause: {duration: 20}
+#         - setWeight: 50
+#         - pause: {duration: 20}
+#         - setWeight: 75
+#         - pause: {duration: 30}
+#         - setWeight: 100
+#   selector:
+#     matchLabels:
+#       app: frontend-demo
+#   template:
+#     metadata:
+#       labels:
+#         app: frontend-demo
+#     spec:
+#       containers:
+#         - name: frontend-demo
+#           image: 345259854056.dkr.ecr.us-east-1.amazonaws.com/app-v2:latest
+#           ports:
+#             - containerPort: 3000
+#           # env:
+#           #   - name: APP_VERSION
+#           #     value: "v1"
+#           #   - name: APP_COLOR
+#           #     value: "#2563eb"
+#           readinessProbe:
+#             httpGet:
+#               path: /readyz
+#               port: 3000
+#             initialDelaySeconds: 3
+#             periodSeconds: 5
+#           livenessProbe:
+#             httpGet:
+#               path: /healthz
+#               port: 3000
+#             initialDelaySeconds: 5
+#             periodSeconds: 10
+#           resources:
+#             requests:
+#               cpu: 50m
+#               memory: 64Mi
+#             limits:
+#               cpu: 200m
+#               memory: 128Mi

@@ -60,17 +60,17 @@ metadata:
     alb.ingress.kubernetes.io/target-group-attributes: load_balancing.cross_zone.enabled=true
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:345259854056:certificate/e76b196c-a1a1-42fc-b2e5-1947f9129212"
-    external-dns.alpha.kubernetes.io/hostname: "frontend-demo.registfylabs.online"
+    external-dns.alpha.kubernetes.io/hostname: "bluegreen.registfylabs.online"
 spec:
   ingressClassName: alb 
   rules:
-    - host: frontend-demo.registfylabs.online
+    - host: bluegreen.registfylabs.online
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: frontend-demo-stable
+                name: rollout-bluegreen-active
                 port:
                   number: 80

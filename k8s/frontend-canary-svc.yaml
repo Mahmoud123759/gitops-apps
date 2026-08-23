@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-demo-canary
+  name:  rollout-bluegreen-preview
   namespace: frontend-demo
   labels:
-    app: frontend-demo
+    app: rollout-bluegreen
 
 spec:
   selector:
-    app: frontend-demo
+    app: rollout-bluegreen
   ports:
     - port: 80
       targetPort: 3000
