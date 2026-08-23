@@ -1,9 +1,0 @@
-node_modules
-npm-debug.log
-coverage
-dist
-.git
-.gitignore
-.env
-README.md
-*.md

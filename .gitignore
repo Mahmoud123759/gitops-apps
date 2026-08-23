@@ -1,6 +1,18 @@
-node_modules
-/dist
-/coverage
+node_modules/
+dist/
 .env
-.npm
+*.log
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+terraform/crash.log
+
+# Docker
+*.tar
+
+# OS
 .DS_Store
+Thumbs.db

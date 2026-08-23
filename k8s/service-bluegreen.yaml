@@ -1,0 +1,45 @@
+# # Blue/green: a single stable Service whose selector you flip between
+# # version: v1 and version: v2. Both Deployments run at full scale the
+# # whole time; the cutover is instant and instantly reversible.
+# #
+# # Cut over:
+# #   kubectl -n frontend-demo patch service frontend-demo-active \
+# #     -p '{"spec":{"selector":{"app":"frontend-demo","version":"v2"}}}'
+# #
+# # Roll back just as fast by setting version back to v1.
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: frontend-demo-active
+#   namespace: frontend-demo
+#   labels:
+#     app: frontend-demo
+# spec:
+#   selector:
+#     app: frontend-demo
+#     version: v1   # <- flip this to v2 to cut over
+#   ports:
+#     - port: 80
+#       targetPort: 3000
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: frontend-demo-bluegreen
+#   namespace: frontend-demo
+#   annotations:
+#     kubernetes.io/ingress.class: alb
+#     alb.ingress.kubernetes.io/scheme: internet-facing
+#     alb.ingress.kubernetes.io/target-type: ip
+# spec:
+#   rules:
+#     - host: frontend-demo.registfylabs.online
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: frontend-demo-active
+#                 port:
+#                   number: 80

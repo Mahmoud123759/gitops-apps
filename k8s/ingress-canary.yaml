@@ -1,0 +1,76 @@
+# # Canary via weighted ALB target groups.
+# # Requires the AWS Load Balancer Controller you already have installed
+# # (confirmed present for the Grafana ALB ingress in your observability stack).
+# #
+# # "frontend-demo-weighted" below is a *virtual* service name -- it doesn't
+# # need its own Service object. The AWS LB Controller reads the weighted
+# # action straight from the annotation and forwards to the two real
+# # Services' target groups.
+# #
+# # Adjust the weights and re-apply to shift traffic gradually,
+# # e.g. 90/10 -> 75/25 -> 50/50 -> 0/100.
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: frontend-demo-canary
+#   namespace: frontend-demo
+#   annotations:
+#     alb.ingress.kubernetes.io/scheme: internet-facing
+#     alb.ingress.kubernetes.io/target-type: ip
+#     alb.ingress.kubernetes.io/backend-protocol: "HTTP"
+#     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+#     alb.ingress.kubernetes.io/target-group-attributes: load_balancing.cross_zone.enabled=true
+#     alb.ingress.kubernetes.io/ssl-redirect: "443"
+#     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:345259854056:certificate/e76b196c-a1a1-42fc-b2e5-1947f9129212"
+#     external-dns.alpha.kubernetes.io/hostname: "frontend-demo.registfylabs.online"
+#     alb.ingress.kubernetes.io/actions.frontend-demo-weighted: >
+#       {
+#         "type": "forward",
+#         "forwardConfig": {
+#           "targetGroups": [
+#             {"serviceName": "frontend-demo-v1", "servicePort": 80, "weight": 90},
+#             {"serviceName": "frontend-demo-v2", "servicePort": 80, "weight": 10}
+#           ]
+#         }
+#       }
+# spec:
+#   ingressClassName: alb 
+#   rules:
+#     - host: frontend-demo.registfylabs.online
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: frontend-demo-weighted
+#                 port:
+#                   name: use-annotation
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-demo-ingress
+  namespace: frontend-demo
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/backend-protocol: "HTTP"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/target-group-attributes: load_balancing.cross_zone.enabled=true
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:345259854056:certificate/e76b196c-a1a1-42fc-b2e5-1947f9129212"
+    external-dns.alpha.kubernetes.io/hostname: "frontend-demo.registfylabs.online"
+spec:
+  ingressClassName: alb 
+  rules:
+    - host: frontend-demo.registfylabs.online
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-demo-stable
+                port:
+                  number: 80

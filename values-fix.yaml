@@ -1,4 +1,0 @@
-kubelet:
-  enabled: true
-  serviceMonitor:
-    https: false

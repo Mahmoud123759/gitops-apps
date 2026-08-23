@@ -159,3 +159,68 @@ kubectl apply -f k8s/rollout.yaml
 👩‍💻 Author
 Hiruni Malshika - [GitHub Profile](https://github.com/hiruniMalshika)
 
+# frontend-canary-demo
+
+Two intentionally simple frontends (v1 = blue, v2 = green) for exercising
+canary and blue/green rollouts on your EKS cluster. Each app:
+
+- shows a full-page banner with its version and pod name, so you can tell
+  which one you're hitting at a glance
+- exposes `GET /version` (JSON), `GET /healthz`, `GET /readyz`
+- exposes `GET /metrics` in Prometheus format via `prom-client`
+  (`frontend_requests_total{version,pod,route}`) — Alloy can scrape this
+  the same way it already scrapes meshapp, so you can watch the traffic
+  split live in Grafana instead of guessing from logs
+
+## 1. Build & push
+
+```bash
+cd v1 && docker build -t <YOUR_ECR_REPO>/frontend-demo:v1 . && docker push <YOUR_ECR_REPO>/frontend-demo:v1
+cd ../v2 && docker build -t <YOUR_ECR_REPO>/frontend-demo:v2 . && docker push <YOUR_ECR_REPO>/frontend-demo:v2
+```
+
+## 2. Deploy both versions
+
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/deployment-v1.yaml
+kubectl apply -f k8s/deployment-v2.yaml
+```
+
+This creates `frontend-demo-v1` and `frontend-demo-v2` Deployments + their
+own ClusterIP Services — needed as targets by both strategies below.
+
+## 3a. Canary (weighted traffic split)
+
+```bash
+kubectl apply -f k8s/ingress-canary.yaml
+```
+
+Uses your existing AWS Load Balancer Controller's weighted target-group
+action — no extra controller (e.g. Argo Rollouts) required. Edit the
+`weight` values in the annotation and re-apply to shift traffic
+(90/10 -> 50/50 -> 0/100), watching `frontend_requests_total` in Grafana
+to confirm the real split matches the configured weights.
+
+## 3b. Blue/green (instant cutover)
+
+```bash
+kubectl apply -f k8s/service-bluegreen.yaml
+```
+
+Both versions run at full scale; `frontend-demo-active`'s selector decides
+which one gets traffic. Cut over with:
+
+```bash
+kubectl -n frontend-demo patch service frontend-demo-active \
+  -p '{"spec":{"selector":{"app":"frontend-demo","version":"v2"}}}'
+```
+
+Roll back the same way by setting `version` back to `v1`.
+
+## Notes
+
+- Point `frontend-demo.registfylabs.online` at the ALB (via ExternalDNS,
+  same as your Grafana setup) or swap the `host` field for your own domain.
+- Only run one of the two Ingresses (`ingress-canary.yaml` or
+  `service-bluegreen.yaml`) at a time — they both claim the same host.
