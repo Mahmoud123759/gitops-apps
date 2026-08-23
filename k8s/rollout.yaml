@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: frontend-demo
-          image: 345259854056.dkr.ecr.us-east-1.amazonaws.com/app-v1:latest
+          image: 345259854056.dkr.ecr.us-east-1.amazonaws.com/app-v2:latest
           ports:
             - containerPort: 3000
           # env:
