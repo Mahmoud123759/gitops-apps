@@ -4,35 +4,45 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "app/**"                             
+      - "app/**"
+  workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
 
 env:
-
+  AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
   AWS_REGION: us-east-1
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
   APP_DIR: app/v1
   APP_VERSION: v1.0.0
- 
+
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # forks can't get OIDC credentials, so they only build
-      CAN_PUSH: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+      # manual runs always come from this repo; forked PRs can't get OIDC credentials, so they only build
+      CAN_PUSH: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        
+      - name: Debug OIDC claims
+        run: |
+          TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+          echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq '{sub, aud, repository, event_name}'
 
       - name: Configure AWS credentials (OIDC)
         if: env.CAN_PUSH == 'true'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+          role-skip-session-tagging: true
+          retry-max-attempts: 1
 
       - name: Login to Amazon ECR
         if: env.CAN_PUSH == 'true'
@@ -40,14 +50,14 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build and push ${{ env.APP_VERSION }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./${{ env.APP_DIR }}
           push: ${{ env.CAN_PUSH == 'true' }}
-          tags: ${{ steps.ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ vars.APP_VERSION }}
+          tags: ${{ steps.ecr.outputs.registry || 'local' }}/${{ env.ECR_REPOSITORY }}:${{ env.APP_VERSION }}
           build-args: |
             APP_VERSION=${{ env.APP_VERSION }}
           cache-from: type=gha
