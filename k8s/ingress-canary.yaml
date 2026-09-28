@@ -21,8 +21,8 @@
 #     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
 #     alb.ingress.kubernetes.io/target-group-attributes: load_balancing.cross_zone.enabled=true
 #     alb.ingress.kubernetes.io/ssl-redirect: "443"
-#     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:345259854056:certificate/e76b196c-a1a1-42fc-b2e5-1947f9129212"
-#     external-dns.alpha.kubernetes.io/hostname: "frontend-demo.registfylabs.online"
+#     alb.ingress.kubernetes.io/certificate-arn: ""
+#     external-dns.alpha.kubernetes.io/hostname: ""
 #     alb.ingress.kubernetes.io/actions.frontend-demo-weighted: >
 #       {
 #         "type": "forward",
@@ -36,7 +36,7 @@
 # spec:
 #   ingressClassName: alb 
 #   rules:
-#     - host: frontend-demo.registfylabs.online
+#     - host: 
 #       http:
 #         paths:
 #           - path: /
@@ -59,12 +59,12 @@
 #     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
 #     alb.ingress.kubernetes.io/target-group-attributes: load_balancing.cross_zone.enabled=true
 #     alb.ingress.kubernetes.io/ssl-redirect: "443"
-#     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:345259854056:certificate/e76b196c-a1a1-42fc-b2e5-1947f9129212"
-#     external-dns.alpha.kubernetes.io/hostname: "bluegreen.registfylabs.online"
+#     alb.ingress.kubernetes.io/certificate-arn: ""
+#     external-dns.alpha.kubernetes.io/hostname: ""
 # spec:
 #   ingressClassName: alb 
 #   rules:
-#     - host: bluegreen.registfylabs.online
+#     - host: 
 #       http:
 #         paths:
 #           - path: /
