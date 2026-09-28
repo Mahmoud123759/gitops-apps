@@ -44,7 +44,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-skip-session-tagging: true
           retry-max-attempts: 1
-          
+
       - name: Login to Amazon ECR
         if: env.CAN_PUSH == 'true'
         id: ecr
