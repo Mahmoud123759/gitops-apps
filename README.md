@@ -224,3 +224,27 @@ Roll back the same way by setting `version` back to `v1`.
   same as your Grafana setup) or swap the `host` field for your own domain.
 - Only run one of the two Ingresses (`ingress-canary.yaml` or
   `service-bluegreen.yaml`) at a time — they both claim the same host.
+
+app versions
+
+v2 
+package.json
+{
+  "name": "frontend-demo-*",
+  "version": "*.0.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "prom-client": "^15.1.3"
+  }
+}
+
+server.js
+  'v1.0.0': '#2563eb', // blue
+  'v2.0.0': '#16a34a', // green
+  'v3.0.0': '#ea580c', // orange
+  'v4.0.0': '#dc2626', // red
