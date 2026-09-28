@@ -16,7 +16,7 @@
 #     spec:
 #       containers:
 #       - name: rollouts-demo
-#         image: 345259854056.dkr.ecr.us-east-1.amazonaws.com/app-v2:latest
+#         image: 
 #         imagePullPolicy: Always
 #         ports:
 #         - containerPort: 3000
