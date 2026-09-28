@@ -4,8 +4,9 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "app/**"                             
-
+      - "app/**"  
+  workflow_dispatch:
+       
 permissions:
   id-token: write
   contents: read
