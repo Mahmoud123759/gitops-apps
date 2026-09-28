@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 env:
-  AWS_ROLE_ARN: arn:aws:iam::345259854056:role/github-actions-ecr-role 
+  AWS_ROLE_ARN: arn:aws:iam::345259854056:role/github-actions-ecr-role
   AWS_REGION: us-east-1
   APP_DIR: app/v1
   APP_VERSION: v1.0.0
