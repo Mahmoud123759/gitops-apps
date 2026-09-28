@@ -1,55 +1,56 @@
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: frontend-demo-v1
-#   namespace: frontend-demo
-#   labels:
-#     app: frontend-demo
-#     version: v1
-# spec:
-#   replicas: 3
-#   selector:
-#     matchLabels:
-#       app: frontend-demo
-#       version: v1
-#   template:
-#     metadata:
-#       labels:
-#         app: frontend-demo
-#         version: v1
-#     spec:
-#       containers:
-#         - name: frontend-v1
-#           image: 345259854056.dkr.ecr.us-east-1.amazonaws.com/app-v1:latest
-#           ports:
-#             - containerPort: 3000
-#           env:
-#             - name: APP_VERSION
-#               value: "v1"
-#           readinessProbe:
-#             httpGet: { path: /readyz, port: 3000 }
-#             initialDelaySeconds: 3
-#             periodSeconds: 5
-#           livenessProbe:
-#             httpGet: { path: /healthz, port: 3000 }
-#             initialDelaySeconds: 5
-#             periodSeconds: 10
-#           resources:
-#             requests: { cpu: 50m, memory: 64Mi }
-#             limits: { cpu: 200m, memory: 128Mi }
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: frontend-demo-stable
-#   namespace: frontend-demo
-#   labels:
-#     app: frontend-demo
-#     version: v1
-# spec:
-#   selector:
-#     app: frontend-demo
-#     version: v1
-#   ports:
-#     - port: 80
-#       targetPort: 3000
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-demo-v1
+  namespace: gateway-app
+  labels:
+    app: frontend-demo
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: frontend-demo
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: frontend-demo
+        version: v1
+    spec:
+      containers:
+        - name: frontend-v1
+          image: 345259854056.dkr.ecr.us-east-1.amazonaws.com/app-v1:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: APP_VERSION
+              value: "v1"
+          readinessProbe:
+            httpGet: { path: /readyz, port: 3000 }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /healthz, port: 3000 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 1, memory: 2Gi }
+            limits: { cpu: 2, memory: 4Gi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-demo-stable
+  namespace: gateway-app
+  labels:
+    app: frontend-demo
+    version: v1
+spec:
+  selector:
+    app: frontend-demo
+    version: v1
+  ports:
+    - port: 80
+      targetPort: 3000
+

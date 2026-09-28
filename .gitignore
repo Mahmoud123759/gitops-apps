@@ -16,3 +16,5 @@ terraform/crash.log
 # OS
 .DS_Store
 Thumbs.db
+/gateway-api/
+/k8s/
