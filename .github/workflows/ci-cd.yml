@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 env:
-
+  AWS_ROLE_ARN: arn:aws:iam::345259854056:role/github-actions-ecr-role
   AWS_REGION: us-east-1
   APP_DIR: app/v1
   APP_VERSION: v1.0.0
@@ -31,7 +31,7 @@ jobs:
         if: env.CAN_PUSH == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
