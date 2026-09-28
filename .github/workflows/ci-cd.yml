@@ -49,7 +49,7 @@ jobs:
         with:
           context: ./${{ env.APP_DIR }}
           push: ${{ env.CAN_PUSH == 'true' }}
-          tags: ${{ steps.ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ vars.APP_VERSION }}
+          tags: ${{ steps.ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ env.APP_VERSION }}
           build-args: |
             APP_VERSION=${{ env.APP_VERSION }}
           cache-from: type=gha
