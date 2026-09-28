@@ -12,6 +12,7 @@ permissions:
   contents: read
 
 env:
+
   AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
   AWS_REGION: us-east-1
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
@@ -43,7 +44,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-skip-session-tagging: true
           retry-max-attempts: 1
-
+          
       - name: Login to Amazon ECR
         if: env.CAN_PUSH == 'true'
         id: ecr
