@@ -42,6 +42,7 @@ jobs:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
           role-skip-session-tagging: true
+          retry-max-attempts: 1
 
       - name: Login to Amazon ECR
         if: env.CAN_PUSH == 'true'
