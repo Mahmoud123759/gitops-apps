@@ -242,7 +242,7 @@ package.json
     "prom-client": "^15.1.3"
   }
 }
-
+  
 server.js
   'v1.0.0': '#2563eb', // blue
   'v2.0.0': '#16a34a', // green
