@@ -16,8 +16,8 @@ env:
   AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
   AWS_REGION: us-east-1
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-  APP_DIR: app/v1
-  APP_VERSION: v1.0.0
+  APP_DIR: app/v2
+  APP_VERSION: v2.0.0
 
 jobs:
   build:
